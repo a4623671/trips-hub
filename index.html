@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>行程管理首頁（管理者專用）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;background:#101826;color:#e8edf4;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:32px 16px 60px}
+h1{font-size:22px;margin-bottom:4px}.sub{font-size:13px;color:#8b96a8;margin-bottom:20px}
+.lock{background:#1a2433;border:1px solid #2b3a52;border-radius:14px;padding:22px;text-align:center}
+.lock input{width:100%;max-width:320px;border:1px solid #2b3a52;border-radius:10px;padding:10px 14px;font-size:16px;background:#0d1420;color:#fff;text-align:center}
+.lock button{border:none;border-radius:10px;padding:10px 22px;font-size:15px;font-weight:800;background:#ffcf4d;cursor:pointer;margin-top:10px}
+#pwmsg{font-size:13px;color:#ff8a8a;min-height:20px;margin-top:6px}
+.card{display:block;background:#fff;color:#222;border-radius:16px;padding:18px;margin-bottom:14px;text-decoration:none}
+.card h2{font-size:19px;margin-bottom:4px}.card p{font-size:13px;color:#666;margin:2px 0}
+.badge{display:inline-block;font-size:12px;border-radius:6px;padding:1px 10px;margin-bottom:8px;font-weight:800}
+.b-live{background:#e3f2e4;color:#1e7a34}.b-done{background:#e2e8f0;color:#555}
+.card .row{margin-top:10px;font-size:13px}
+.card .row a{display:inline-block;margin:2px 8px 2px 0;color:#0e6e8a;font-weight:700}
+.note{font-size:12px;color:#8b96a8;margin-top:16px;text-align:center}
+.ver{font-size:11px;text-align:center;margin-top:6px;color:#5a6578}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🛡 行程管理首頁</h1>
+<div class="sub">管理者專用・此網址不對外公開・解鎖後同分頁開啟行程站即帶管理導航</div>
+<div class="lock" id="lock">
+<div style="font-size:15px;font-weight:700;margin-bottom:10px">請輸入管理口令</div>
+<input id="pw" type="password" autocomplete="off" placeholder="口令">
+<div><button onclick="unlock()">解鎖</button></div>
+<div id="pwmsg"></div>
+</div>
+<div id="app" style="display:none"></div>
+<div class="note">新增行程只需在下方 <b>TRIPS</b> 加一筆（名稱／日期／首頁／repo／狀態）後 push。</div>
+<div class="ver">hub 20261002-v1</div>
+</div>
+<script>
+var TRIPS=[
+{id:'okinawa',name:'🚢 MSC榮耀號・沖繩5日',dates:'2026/12/16–12/20',status:'live',statusTxt:'進行中（投票定案＋初稿已上線）',home:'https://a4623671.github.io/okinawa-cruise-2026/',repo:'https://github.com/a4623671/okinawa-cruise-2026',admin:'https://a4623671.github.io/okinawa-cruise-2026/admin.html',note:'flow/vote-finalize・初稿 itinerary wx2'},
+{id:'shanghai',name:'🐴 上海・蘇州・杭州・澳門9天',dates:'2026/09/22–09/30',status:'done',statusTxt:'已結束（封存）',home:'https://a4623671.github.io/shanghai-macau-trip-2026/',repo:'https://github.com/a4623671/shanghai-macau-trip-2026',admin:'',note:'flow/agent-framework・單檔15M'}
+];
+var HUB_HOME='https://a4623671.github.io/trips-hub/';
+async function unlock(){var v=document.getElementById('pw').value.trim();var h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v));var hex=[...new Uint8Array(h)].map(function(b){return b.toString(16).padStart(2,'0');}).join('');if(hex==='79c24954807c83c719a99fa71958ad1afb7b17a2fe03d4773d383797dfcbfbf3'){sessionStorage.setItem('admin_ok','1');showApp();}else{document.getElementById('pwmsg').textContent='口令不對';}}
+function showApp(){document.getElementById('lock').style.display='none';var app=document.getElementById('app');app.style.display='block';app.innerHTML=TRIPS.map(function(t){return '<div class="card"><span class="badge '+(t.status==='live'?'b-live':'b-done')+'">'+t.statusTxt+'</span><h2>'+t.name+'</h2><p>'+t.dates+'・'+t.note+'</p><div class="row"><a href="'+t.home+'">行程首頁 →</a><a href="'+t.repo+'">部署 repo</a>'+(t.admin?'<a href="'+t.admin+'">站內管理</a>':'')+'</div></div>';}).join('');}
+document.getElementById('pw').addEventListener('keydown',function(e){if(e.key==='Enter')unlock();});
+if(sessionStorage.getItem('admin_ok')==='1')showApp();
+</script>
+</body>
+</html>
